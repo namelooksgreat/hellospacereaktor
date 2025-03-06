@@ -6,7 +6,6 @@ export type BadgeVariant =
   | "primary" // Blue badge
   | "secondary" // Teal badge
   | "tertiary" // Peach badge
-  | "accent" // Cream badge
   | "outline" // Outlined badge
   | "ghost"; // Ghost badge
 
@@ -18,8 +17,6 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
   variant?: BadgeVariant;
   size?: BadgeSize;
   rounded?: "default" | "full";
-  icon?: React.ReactNode;
-  iconPosition?: "left" | "right";
   className?: string;
   children: React.ReactNode;
 }
@@ -28,33 +25,30 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLDivElement> {
 export const Badge = ({
   variant = "primary",
   size = "md",
-  rounded = "default",
-  icon,
-  iconPosition = "left",
+  rounded = "full",
   className,
   children,
   ...props
 }: BadgeProps) => {
   // Variant styles
   const variantStyles = {
-    primary: `bg-corporate-blue/10 text-corporate-blue`,
-    secondary: `bg-corporate-teal/10 text-corporate-teal`,
-    tertiary: `bg-corporate-peach/10 text-corporate-peach`,
-    accent: `bg-corporate-cream/10 text-corporate-blue`,
-    outline: `bg-transparent border border-gray-300 text-gray-700`,
-    ghost: `bg-gray-100 text-gray-700`,
+    primary: "bg-corporate-blue/10 text-corporate-blue",
+    secondary: "bg-corporate-teal/10 text-corporate-teal",
+    tertiary: "bg-corporate-peach/10 text-corporate-peach",
+    outline: "bg-transparent border border-gray-300 text-gray-700",
+    ghost: "bg-gray-100 text-gray-700",
   };
 
   // Size styles
   const sizeStyles = {
     sm: "text-xs px-2 py-0.5",
     md: "text-sm px-2.5 py-0.5",
-    lg: "text-sm px-3 py-1",
+    lg: "text-base px-3 py-1",
   };
 
   // Rounded styles
   const roundedStyles = {
-    default: "rounded-md",
+    default: "rounded",
     full: "rounded-full",
   };
 
@@ -69,18 +63,12 @@ export const Badge = ({
       )}
       {...props}
     >
-      {icon && iconPosition === "left" && (
-        <span className="mr-1.5 flex-shrink-0">{icon}</span>
-      )}
       {children}
-      {icon && iconPosition === "right" && (
-        <span className="ml-1.5 flex-shrink-0">{icon}</span>
-      )}
     </div>
   );
 };
 
-// Status Badge component
+// Status badge component
 export interface StatusBadgeProps extends Omit<BadgeProps, "variant"> {
   status: "success" | "warning" | "error" | "info" | "neutral";
 }
@@ -93,45 +81,63 @@ export const StatusBadge = ({
   children,
   ...props
 }: StatusBadgeProps) => {
-  // Status styles mapping
+  // Status styles
   const statusStyles = {
-    success: `bg-corporate-teal/10 text-corporate-teal`,
-    warning: `bg-corporate-cream/10 text-amber-700`,
-    error: `bg-corporate-peach/10 text-corporate-peach`,
-    info: `bg-corporate-blue/10 text-corporate-blue`,
-    neutral: `bg-gray-100 text-gray-700`,
+    success: "bg-corporate-teal/10 text-corporate-teal",
+    warning: "bg-corporate-peach/10 text-corporate-peach",
+    error: "bg-red-100 text-red-700",
+    info: "bg-corporate-blue/10 text-corporate-blue",
+    neutral: "bg-gray-100 text-gray-700",
   };
 
-  // Status indicator
-  const StatusIndicator = () => (
-    <span
-      className={cn(
-        "w-2 h-2 rounded-full mr-1.5",
-        status === "success" && "bg-corporate-teal",
-        status === "warning" && "bg-amber-500",
-        status === "error" && "bg-corporate-peach",
-        status === "info" && "bg-corporate-blue",
-        status === "neutral" && "bg-gray-400",
-      )}
-    />
-  );
+  // Size styles
+  const sizeStyles = {
+    sm: "text-xs px-2 py-0.5",
+    md: "text-sm px-2.5 py-0.5",
+    lg: "text-base px-3 py-1",
+  };
+
+  // Rounded styles
+  const roundedStyles = {
+    default: "rounded",
+    full: "rounded-full",
+  };
+
+  // Dot size styles
+  const dotSizeStyles = {
+    sm: "w-1.5 h-1.5",
+    md: "w-2 h-2",
+    lg: "w-2.5 h-2.5",
+  };
 
   return (
-    <Badge
-      variant="primary" // This will be overridden
-      size={size}
-      rounded={rounded}
-      className={cn(statusStyles[status], className)}
-      icon={<StatusIndicator />}
-      iconPosition="left"
+    <div
+      className={cn(
+        "inline-flex items-center font-medium",
+        statusStyles[status],
+        sizeStyles[size],
+        roundedStyles[rounded],
+        className,
+      )}
       {...props}
     >
+      <span
+        className={cn(
+          "rounded-full mr-1.5",
+          dotSizeStyles[size],
+          status === "success" && "bg-corporate-teal",
+          status === "warning" && "bg-corporate-peach",
+          status === "error" && "bg-red-500",
+          status === "info" && "bg-corporate-blue",
+          status === "neutral" && "bg-gray-500",
+        )}
+      />
       {children}
-    </Badge>
+    </div>
   );
 };
 
-// Counter Badge component
+// Counter badge component
 export interface CounterBadgeProps extends Omit<BadgeProps, "children"> {
   count: number;
   max?: number;
@@ -141,22 +147,42 @@ export const CounterBadge = ({
   count,
   max = 99,
   variant = "primary",
-  size = "sm",
+  size = "md",
   rounded = "full",
   className,
   ...props
 }: CounterBadgeProps) => {
-  const displayCount = count > max ? `${max}+` : count.toString();
+  // Format count with max
+  const formattedCount = count > max ? `${max}+` : count.toString();
+
+  // Variant styles
+  const variantStyles = {
+    primary: "bg-corporate-blue text-white",
+    secondary: "bg-corporate-teal text-white",
+    tertiary: "bg-corporate-peach text-white",
+    outline: "bg-transparent border border-gray-300 text-gray-700",
+    ghost: "bg-gray-100 text-gray-700",
+  };
+
+  // Size styles
+  const sizeStyles = {
+    sm: "text-xs min-w-[1.25rem] h-5",
+    md: "text-sm min-w-[1.5rem] h-6",
+    lg: "text-base min-w-[1.75rem] h-7",
+  };
 
   return (
-    <Badge
-      variant={variant}
-      size={size}
-      rounded={rounded}
-      className={cn("min-w-[1.5rem] text-center justify-center", className)}
+    <div
+      className={cn(
+        "inline-flex items-center justify-center font-medium px-1",
+        variantStyles[variant],
+        sizeStyles[size],
+        "rounded-full",
+        className,
+      )}
       {...props}
     >
-      {displayCount}
-    </Badge>
+      {formattedCount}
+    </div>
   );
 };
